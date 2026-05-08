@@ -4,40 +4,51 @@ const { calculatePayroll } = require('./payroll');
 const app = express();
 app.use(express.json());
 
-// Validation unique sans fonctions intermédiaires
-function validatePayrollInput(data) {
-    const required = ['salaire_base', 'heures_sup', 'jours_absence', 'grade', 'objectifs', 'anciennete_mois'];
-    
-    for (const field of required) {
-        if (data[field] === undefined) {
-            throw new Error(`Champ manquant : ${field}`);
-        }
+// Vérifie qu'un champ existe
+const fieldExists = (data, field) => {
+    if (data[field] === undefined) throw new Error(`Champ manquant : ${field}`);
+};
+
+// Vérifie que c'est un nombre positif ou nul
+const isPositiveNumber = (value, name) => {
+    if (typeof value !== 'number' || value < 0) {
+        throw new Error(`${name} doit être un nombre positif ou nul`);
     }
-    
-    if (typeof data.salaire_base !== 'number' || data.salaire_base <= 0) {
-        throw new Error('salaire_base doit être un nombre positif');
+};
+
+// Vérifie que c'est un nombre strictement positif
+const isStrictPositiveNumber = (value, name) => {
+    if (typeof value !== 'number' || value <= 0) {
+        throw new Error(`${name} doit être un nombre positif`);
     }
+};
+
+// Vérifie que c'est une chaîne
+const isString = (value, name) => {
+    if (typeof value !== 'string') throw new Error(`${name} doit être une chaîne`);
+};
+
+// Vérifie que c'est un booléen
+const isBoolean = (value, name) => {
+    if (typeof value !== 'boolean') throw new Error(`${name} doit être un booléen`);
+};
+
+// Validation complète (ne fait qu'appeler les petites fonctions)
+const validatePayrollInput = (data) => {
+    fieldExists(data, 'salaire_base');
+    fieldExists(data, 'heures_sup');
+    fieldExists(data, 'jours_absence');
+    fieldExists(data, 'grade');
+    fieldExists(data, 'objectifs');
+    fieldExists(data, 'anciennete_mois');
     
-    if (typeof data.heures_sup !== 'number' || data.heures_sup < 0) {
-        throw new Error('heures_sup doit être un nombre positif ou nul');
-    }
-    
-    if (typeof data.jours_absence !== 'number' || data.jours_absence < 0) {
-        throw new Error('jours_absence doit être un nombre positif ou nul');
-    }
-    
-    if (typeof data.grade !== 'string') {
-        throw new Error('grade doit être une chaîne de caractères');
-    }
-    
-    if (typeof data.objectifs !== 'boolean') {
-        throw new Error('objectifs doit être un booléen');
-    }
-    
-    if (typeof data.anciennete_mois !== 'number' || data.anciennete_mois < 0) {
-        throw new Error('anciennete_mois doit être un nombre positif ou nul');
-    }
-}
+    isStrictPositiveNumber(data.salaire_base, 'salaire_base');
+    isPositiveNumber(data.heures_sup, 'heures_sup');
+    isPositiveNumber(data.jours_absence, 'jours_absence');
+    isString(data.grade, 'grade');
+    isBoolean(data.objectifs, 'objectifs');
+    isPositiveNumber(data.anciennete_mois, 'anciennete_mois');
+};
 
 app.post('/api/calculate-payroll', (req, res) => {
     try {

@@ -16,7 +16,7 @@ const calculateManagerBonus = (grade) => {
 };
 
 const calculatePerformanceBonus = (salary, objectives, seniority) => {
-    if (objectives === true && seniority >= 12) return salary * 0.1;
+    if (objectives && seniority >= 12) return salary * 0.1;
     return 0;
 };
 
