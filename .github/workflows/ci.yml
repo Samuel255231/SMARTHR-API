@@ -5,7 +5,7 @@ on:
     branches: [ main, master ]
 
 jobs:
-  sonarcloud:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -15,6 +15,10 @@ jobs:
           node-version: 18
       
       - run: npm install
+      
+      - run: npm run lint
+      
+      - run: npm test
       
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
