@@ -99,4 +99,19 @@ describe('Tests API endpoints', () => {
             .send({ salaire_base: "pas un nombre" });
         expect(response.statusCode).toBe(400);
     });
+
+    test('POST avec salaire_base négatif retourne 400', async () => {
+    const response = await request(app)
+        .post('/api/calculate-payroll')
+        .send({
+            salaire_base: -100,
+            heures_sup: 5,
+            jours_absence: 1,
+            grade: 'Employe',
+            objectifs: false,
+            anciennete_mois: 6
+        });
+    expect(response.statusCode).toBe(400);
+    expect(response.body.error).toContain('salaire_base');
+});
 });

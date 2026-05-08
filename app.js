@@ -52,7 +52,7 @@ app.post('/api/calculate-payroll', (req, res) => {
     }
 });
 
-// Ne pas tester cette ligne (démarrage serveur)
+// Remplacer la fin du fichier par :
 if (require.main === module) {
     app.listen(3000, () => console.log('Server running on port 3000'));
 }
