@@ -1,6 +1,15 @@
-const { calculatePayroll, calculateOvertimePay, calculateAbsenceDeduction, calculateManagerBonus, calculatePerformanceBonus, getHourlyRate } = require('../payroll');
+const request = require('supertest');
+const app = require('../app');
+const { 
+    calculatePayroll, 
+    getHourlyRate, 
+    calculateOvertimePay, 
+    calculateAbsenceDeduction, 
+    calculateManagerBonus, 
+    calculatePerformanceBonus 
+} = require('../payroll');
 
-describe('Payroll Calculator', () => {
+describe('Tests unitaires des fonctions payroll', () => {
     
     test('getHourlyRate calcule correctement', () => {
         expect(getHourlyRate(2000)).toBe(12.5);
@@ -64,5 +73,30 @@ describe('Payroll Calculator', () => {
             anciennete_mois: 6
         });
         expect(result.salaire_final).toBe(2000);
+    });
+});
+
+describe('Tests API endpoints', () => {
+    
+    test('POST /api/calculate-payroll retourne 200 et le salaire', async () => {
+        const response = await request(app)
+            .post('/api/calculate-payroll')
+            .send({
+                salaire_base: 2000,
+                heures_sup: 12,
+                jours_absence: 3,
+                grade: 'Manager',
+                objectifs: true,
+                anciennete_mois: 18
+            });
+        expect(response.statusCode).toBe(200);
+        expect(response.body.salaire_final).toBeDefined();
+    });
+
+    test('POST avec donnée invalide retourne 400', async () => {
+        const response = await request(app)
+            .post('/api/calculate-payroll')
+            .send({ salaire_base: "pas un nombre" });
+        expect(response.statusCode).toBe(400);
     });
 });

@@ -1,4 +1,4 @@
-
+// app.js (modifié)
 const express = require('express');
 const { calculatePayroll } = require('./payroll');
 
@@ -14,4 +14,9 @@ app.post('/api/calculate-payroll', (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+// Ne pas tester cette ligne (démarrage serveur)
+if (require.main === module) {
+    app.listen(3000, () => console.log('Server running on port 3000'));
+}
+
+module.exports = app;
