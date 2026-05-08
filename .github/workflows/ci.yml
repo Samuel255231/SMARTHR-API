@@ -25,7 +25,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=Samuel255231_SMARTHR-API
-            -Dsonar.organization=Samuel255231
+            -Dsonar.organization=samuel255231
             -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
