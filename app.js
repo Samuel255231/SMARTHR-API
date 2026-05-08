@@ -4,27 +4,30 @@ const { calculatePayroll } = require('./payroll');
 const app = express();
 app.use(express.json());
 
-// Fonction de validation des entrées
-function validatePayrollInput(data) {
-    const required = ['salaire_base', 'heures_sup', 'jours_absence', 'grade', 'objectifs', 'anciennete_mois'];
-    
-    for (const field of required) {
+// Validation des champs requis
+function checkRequiredFields(data, fields) {
+    for (const field of fields) {
         if (data[field] === undefined) {
             throw new Error(`Champ manquant : ${field}`);
         }
     }
-    
-    if (typeof data.salaire_base !== 'number' || data.salaire_base <= 0) {
-        throw new Error('salaire_base doit être un nombre positif');
+}
+
+// Validation des nombres
+function validateNumberField(value, fieldName, min = 0) {
+    if (typeof value !== 'number' || value < min) {
+        throw new Error(`${fieldName} doit être un nombre ${min === 0 ? 'positif ou nul' : 'positif'}`);
     }
+}
+
+// Validation des types
+function validatePayrollInput(data) {
+    const required = ['salaire_base', 'heures_sup', 'jours_absence', 'grade', 'objectifs', 'anciennete_mois'];
+    checkRequiredFields(data, required);
     
-    if (typeof data.heures_sup !== 'number' || data.heures_sup < 0) {
-        throw new Error('heures_sup doit être un nombre positif ou nul');
-    }
-    
-    if (typeof data.jours_absence !== 'number' || data.jours_absence < 0) {
-        throw new Error('jours_absence doit être un nombre positif ou nul');
-    }
+    validateNumberField(data.salaire_base, 'salaire_base', 1);
+    validateNumberField(data.heures_sup, 'heures_sup');
+    validateNumberField(data.jours_absence, 'jours_absence');
     
     if (typeof data.grade !== 'string') {
         throw new Error('grade doit être une chaîne de caractères');
@@ -34,9 +37,7 @@ function validatePayrollInput(data) {
         throw new Error('objectifs doit être un booléen');
     }
     
-    if (typeof data.anciennete_mois !== 'number' || data.anciennete_mois < 0) {
-        throw new Error('anciennete_mois doit être un nombre positif ou nul');
-    }
+    validateNumberField(data.anciennete_mois, 'anciennete_mois');
     
     return true;
 }
