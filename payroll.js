@@ -1,4 +1,3 @@
-// payroll.js
 const getHourlyRate = (salary) => salary / 160;
 
 const calculateOvertimePay = (hours, rate) => {
@@ -16,8 +15,7 @@ const calculateManagerBonus = (grade) => {
 };
 
 const calculatePerformanceBonus = (salary, objectives, ancienneteMois) => {
-    if (!objectives) return 0;
-    if (ancienneteMois < 12) return 0;
+    if (!objectives || ancienneteMois < 12) return 0;
     return salary * 0.1;
 };
 

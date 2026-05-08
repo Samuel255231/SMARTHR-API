@@ -1,8 +1,60 @@
-const { calculatePayroll, calculateOvertimePay, calculateAbsenceDeduction, calculateManagerBonus, calculatePerformanceBonus } = require('../payroll');
+const { calculatePayroll, calculateOvertimePay, calculateAbsenceDeduction, calculateManagerBonus, calculatePerformanceBonus, getHourlyRate } = require('../payroll');
 
 describe('Payroll Calculator', () => {
     
-    test('calcul salaire normal (pas de heures sup, pas absence)', () => {
+    test('getHourlyRate calcule correctement', () => {
+        expect(getHourlyRate(2000)).toBe(12.5);
+    });
+
+    test('calculateOvertimePay - heures ≤ 10', () => {
+        expect(calculateOvertimePay(5, 12.5)).toBe(62.5);
+    });
+
+    test('calculateOvertimePay - heures > 10 avec majoration', () => {
+        expect(calculateOvertimePay(12, 12.5)).toBe(162.5);
+    });
+
+    test('calculateAbsenceDeduction - jours ≤ 2 = 0', () => {
+        expect(calculateAbsenceDeduction(2000, 2)).toBe(0);
+    });
+
+    test('calculateAbsenceDeduction - jours > 2', () => {
+        expect(calculateAbsenceDeduction(2000, 4)).toBe(400);
+    });
+
+    test('calculateManagerBonus - Manager = 500', () => {
+        expect(calculateManagerBonus('Manager')).toBe(500);
+    });
+
+    test('calculateManagerBonus - non Manager = 0', () => {
+        expect(calculateManagerBonus('Employe')).toBe(0);
+    });
+
+    test('calculatePerformanceBonus - conditions remplies', () => {
+        expect(calculatePerformanceBonus(2000, true, 18)).toBe(200);
+    });
+
+    test('calculatePerformanceBonus - objectifs non atteints', () => {
+        expect(calculatePerformanceBonus(2000, false, 18)).toBe(0);
+    });
+
+    test('calculatePerformanceBonus - anciennete < 12 mois', () => {
+        expect(calculatePerformanceBonus(2000, true, 6)).toBe(0);
+    });
+
+    test('calculatePayroll - cas complet Manager avec bonus', () => {
+        const result = calculatePayroll({
+            salaire_base: 2000,
+            heures_sup: 12,
+            jours_absence: 3,
+            grade: 'Manager',
+            objectifs: true,
+            anciennete_mois: 18
+        });
+        expect(result.salaire_final).toBe(2562.5);
+    });
+
+    test('calculatePayroll - Employe sans bonus', () => {
         const result = calculatePayroll({
             salaire_base: 2000,
             heures_sup: 0,
@@ -12,115 +64,5 @@ describe('Payroll Calculator', () => {
             anciennete_mois: 6
         });
         expect(result.salaire_final).toBe(2000);
-    });
-
-    test('heures sup ≤ 10', () => {
-        const result = calculatePayroll({
-            salaire_base: 2000,
-            heures_sup: 5,
-            jours_absence: 0,
-            grade: 'Employe',
-            objectifs: false,
-            anciennete_mois: 6
-        });
-        expect(result.details.heures_sup_montant).toBe(5 * (2000/160));
-    });
-
-    test('heures sup > 10 avec majoration 50%', () => {
-        const result = calculatePayroll({
-            salaire_base: 2000,
-            heures_sup: 12,
-            jours_absence: 0,
-            grade: 'Employe',
-            objectifs: false,
-            anciennete_mois: 6
-        });
-        const taux = 2000/160;
-        const expected = (10 * taux) + (2 * taux * 1.5);
-        expect(result.details.heures_sup_montant).toBe(expected);
-    });
-
-    test('absence ≤ 2 jours = pas de deduction', () => {
-        const result = calculatePayroll({
-            salaire_base: 2000,
-            heures_sup: 0,
-            jours_absence: 2,
-            grade: 'Employe',
-            objectifs: false,
-            anciennete_mois: 6
-        });
-        expect(result.details.deduction_absence).toBe(0);
-    });
-
-    test('absence > 2 jours deduction 5% par jour', () => {
-        const result = calculatePayroll({
-            salaire_base: 2000,
-            heures_sup: 0,
-            jours_absence: 4,
-            grade: 'Employe',
-            objectifs: false,
-            anciennete_mois: 6
-        });
-        expect(result.details.deduction_absence).toBe(2000 * 0.05 * 4);
-    });
-
-    test('Manager = prime 500', () => {
-        const result = calculatePayroll({
-            salaire_base: 2000,
-            heures_sup: 0,
-            jours_absence: 0,
-            grade: 'Manager',
-            objectifs: false,
-            anciennete_mois: 6
-        });
-        expect(result.details.prime_manager).toBe(500);
-    });
-
-    test('Non Manager = pas de prime', () => {
-        const result = calculatePayroll({
-            salaire_base: 2000,
-            heures_sup: 0,
-            jours_absence: 0,
-            grade: 'Employe',
-            objectifs: false,
-            anciennete_mois: 6
-        });
-        expect(result.details.prime_manager).toBe(0);
-    });
-
-    test('Bonus si objectifs atteints ET anciennete ≥ 12 mois', () => {
-        const result = calculatePayroll({
-            salaire_base: 2000,
-            heures_sup: 0,
-            jours_absence: 0,
-            grade: 'Employe',
-            objectifs: true,
-            anciennete_mois: 18
-        });
-        expect(result.details.bonus_performance).toBe(200);
-    });
-
-    test('Pas de bonus si objectifs non atteints', () => {
-        const result = calculatePayroll({
-            salaire_base: 2000,
-            heures_sup: 0,
-            jours_absence: 0,
-            grade: 'Employe',
-            objectifs: false,
-            anciennete_mois: 18
-        });
-        expect(result.details.bonus_performance).toBe(0);
-    });
-
-    test('Pas de bonus si anciennete < 12 mois', () => {
-        const result = calculatePayroll({
-            salaire_base: 2000,
-            heures_sup: 0,
-            jours_absence: 0,
-            grade: 'Employe',
-            objectifs: true,
-            anciennete_mois: 6
-        });
-        expect(result.details.bonus_performance).toBe(0);
     });
 });
