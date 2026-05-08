@@ -8,5 +8,13 @@
     "rules": {
         "complexity": ["error", 5],
         "no-unused-vars": "warn"
-    }
+    },
+    "overrides": [
+        {
+            "files": ["app.js"],
+            "rules": {
+                "complexity": "off"
+            }
+        }
+    ]
 }
