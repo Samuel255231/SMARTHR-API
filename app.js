@@ -60,7 +60,10 @@ app.post('/api/calculate-payroll', (req, res) => {
     }
 });
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Ne démarrer le serveur que si on n'est PAS en test
+if (require.main === module) {
+    const PORT = 3000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
 
 module.exports = app;

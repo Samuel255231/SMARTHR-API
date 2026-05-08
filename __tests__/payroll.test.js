@@ -1,3 +1,8 @@
+
+afterAll(() => {
+    // Pas de serveur à fermer car on utilise app sans listen
+});
+
 const request = require('supertest');
 const app = require('../app');
 const { 
