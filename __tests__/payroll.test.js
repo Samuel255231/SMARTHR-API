@@ -1,4 +1,5 @@
 const request = require('supertest');
+const { validatePayrollInput } = require('../validator');
 const { createApp } = require('../app');
 const { 
     calculatePayroll, 
@@ -29,6 +30,10 @@ describe('Tests API endpoints', () => {
             });
         expect(response.statusCode).toBe(200);
         expect(response.body.salaire_final).toBeDefined();
+    });
+
+    test('validatePayrollInput lève une erreur si champ manquant', () => {
+    expect(() => validatePayrollInput({})).toThrow('Champ manquant');
     });
 
     test('POST avec donnée invalide retourne 400', async () => {
