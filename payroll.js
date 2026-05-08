@@ -1,3 +1,5 @@
+// payroll.js
+
 const getHourlyRate = (salary) => salary / 160;
 
 const calculateOvertimePay = (hours, rate) => {
@@ -20,6 +22,21 @@ const calculatePerformanceBonus = (salary, objectives, seniority) => {
     return 0;
 };
 
+// Fonction réduite à sa plus simple expression
+const buildDetails = (base, overtime, absence, bonus, perf, rate) => ({
+    heures_sup_montant: overtime,
+    deduction_absence: absence,
+    prime_manager: bonus,
+    bonus_performance: perf,
+    taux_horaire_calcule: rate
+});
+
+const buildResponse = (base, final, details) => ({
+    salaire_base: base,
+    salaire_final: final,
+    details
+});
+
 const calculatePayroll = (data) => {
     const rate = getHourlyRate(data.salaire_base);
     const overtime = calculateOvertimePay(data.heures_sup, rate);
@@ -28,18 +45,9 @@ const calculatePayroll = (data) => {
     const perf = calculatePerformanceBonus(data.salaire_base, data.objectifs, data.anciennete_mois);
     
     const final = data.salaire_base + overtime - absence + bonus + perf;
+    const details = buildDetails(data.salaire_base, overtime, absence, bonus, perf, rate);
     
-    return {
-        salaire_base: data.salaire_base,
-        salaire_final: final,
-        details: {
-            heures_sup_montant: overtime,
-            deduction_absence: absence,
-            prime_manager: bonus,
-            bonus_performance: perf,
-            taux_horaire_calcule: rate
-        }
-    };
+    return buildResponse(data.salaire_base, final, details);
 };
 
 module.exports = {
